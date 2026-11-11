@@ -1,12 +1,10 @@
 # Diffusion runtime for Koharu
 
-Daily prebuilt [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp) shared libraries for [Koharu](https://github.com/mayocream/koharu).
+Prebuilt [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp) shared libraries for [Koharu](https://github.com/perennialtech/koharu), built from the commit of [perennialtech/stable-diffusion.cpp](https://github.com/perennialtech/stable-diffusion.cpp) pinned in the release workflow.
 
-The release workflow resolves the latest stable upstream release and builds CUDA, HIP, Vulkan, and Metal variants for Windows, Linux, and macOS. It runs daily at 03:47 UTC, on pushes to `main`, and when started manually.
+The release workflow builds CUDA, HIP, Vulkan, and Metal variants for Windows, Linux, and macOS on pushes to `main` and when started manually. Linux builds run on Ubuntu 24.04 so the libraries load on hosts with glibc 2.39.
 
-Build jobs use the standard `ubuntu-latest`, `windows-latest`, and `macos-latest` GitHub-hosted runners.
-
-Generated binaries are published through this repository's [releases](https://github.com/koharu-org/diffusion/releases).
+Generated binaries are published through this repository's [releases](https://github.com/perennialtech/diffusion/releases).
 
 ## License
 

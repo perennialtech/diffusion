@@ -2,13 +2,16 @@ name: Diffusion
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '47 3 * * *'
   push:
     branches: ['main']
 
 permissions:
   contents: read
+
+env:
+  # Koharu's patches on top of upstream stable-diffusion.cpp.
+  SOURCE_REPOSITORY: perennialtech/stable-diffusion.cpp
+  SOURCE_COMMIT: c72cfa8dccd53b49570f958dbf6060daf32dca98
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -16,19 +19,19 @@ concurrency:
 
 jobs:
   source:
-    name: Resolve latest release
+    name: Resolve release tag
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.release.outputs.tag }}
       release_tag: ${{ steps.release.outputs.release_tag }}
 
     steps:
-      - name: Resolve latest stable-diffusion.cpp release
+      - name: Name the release after the source commit
         id: release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag=$(gh api repos/leejet/stable-diffusion.cpp/releases/latest --jq .tag_name)
+          tag=koharu-${SOURCE_COMMIT::7}
           existing_tags=$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq '.[].tag_name')
           release_tag=$tag
           suffix=1
@@ -50,7 +53,7 @@ jobs:
             os: windows-latest
             target: x86_64-pc-windows-msvc
           - backend: cuda
-            os: ubuntu-latest
+            os: ubuntu-24.04
             target: x86_64-unknown-linux-gnu
           - backend: cuda
             os: ubuntu-24.04-arm
@@ -59,10 +62,10 @@ jobs:
             os: windows-latest
             target: x86_64-pc-windows-msvc
           - backend: hip
-            os: ubuntu-latest
+            os: ubuntu-24.04
             target: x86_64-unknown-linux-gnu
           - backend: vulkan
-            os: ubuntu-latest
+            os: ubuntu-24.04
             target: x86_64-unknown-linux-gnu
           - backend: vulkan
             os: windows-latest
@@ -112,8 +115,8 @@ jobs:
       - name: Check out stable-diffusion.cpp
         uses: actions/checkout@v7
         with:
-          repository: leejet/stable-diffusion.cpp
-          ref: ${{ needs.source.outputs.tag }}
+          repository: ${{ env.SOURCE_REPOSITORY }}
+          ref: ${{ env.SOURCE_COMMIT }}
           path: upstream/stable-diffusion.cpp
           # ggml vendors CUTLASS as a submodule of its own.
           submodules: recursive
